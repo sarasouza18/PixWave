@@ -197,6 +197,7 @@ return [
         App\Providers\TransactionRepositoryServiceProvider::class,
         App\Providers\GatewayRepositoryServiceProvider::class,
         App\Providers\PaymentServiceServiceProvider::class,
+        App\Providers\MercadoPagoServiceProvider::class,
 
     ],
 

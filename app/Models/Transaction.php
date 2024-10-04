@@ -10,7 +10,14 @@ class Transaction extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'gateway_id', 'amount', 'currency', 'status', 'type'];
+    protected $fillable = [
+        'user_id',
+        'amount',
+        'currency',
+        'status',
+        'gateway_status',
+        'gateway_provider',
+    ];
 
     /**
      * @return BelongsTo

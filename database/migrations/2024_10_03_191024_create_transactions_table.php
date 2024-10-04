@@ -14,7 +14,7 @@ class CreateTransactionsTable extends Migration
             $table->unsignedBigInteger('gateway_id');
             $table->decimal('amount', 15, 2);
             $table->string('currency', 3)->default('BRL');
-            $table->enum('status', ['success', 'failure']);
+            $table->string('status')->default('pending');
             $table->enum('type', ['incoming', 'outgoing']);
             $table->timestamps();
 
