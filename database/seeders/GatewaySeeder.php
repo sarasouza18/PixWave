@@ -9,8 +9,8 @@ class GatewaySeeder extends Seeder
 {
     public function run()
     {
-        Gateway::create(['name' => 'Gateway A', 'available' => true]);
-        Gateway::create(['name' => 'Gateway B', 'available' => true]);
+        Gateway::create(['name' => 'Mercado Pago', 'available' => true]);
+        Gateway::create(['name' => 'Gerencianet', 'available' => true]);
     }
 }
 
