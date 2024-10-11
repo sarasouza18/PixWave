@@ -5,19 +5,15 @@ namespace App\Services\Contracts;
 interface PaymentGatewayInterface
 {
     /**
-     * Processa o pagamento.
-     *
      * @param int $userId
      * @param float $amount
      * @param string $currency
      * @return array
      * @throws \Exception
      */
-    public function processPayment($userId, $amount, $currency): array;
+    public function processPayment(int $userId, float $amount, string $currency): array;
 
     /**
-     * Verifica a disponibilidade do gateway.
-     *
      * @return bool
      */
     public function isAvailable(): bool;

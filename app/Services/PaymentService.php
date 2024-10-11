@@ -6,12 +6,13 @@ use App\Jobs\ProcessPaymentJob;
 use App\Repositories\TransactionRepository;
 use App\Repositories\GatewayRepository;
 use App\Services\Contracts\PaymentServiceInterface;
+use Exception;
 use Illuminate\Support\Facades\Redis;
 
 class PaymentService implements PaymentServiceInterface
 {
-    protected $transactionRepository;
-    protected $gatewayRepository;
+    protected TransactionRepository $transactionRepository;
+    protected GatewayRepository $gatewayRepository;
 
     public function __construct(TransactionRepository $transactionRepository, GatewayRepository $gatewayRepository)
     {
@@ -19,16 +20,17 @@ class PaymentService implements PaymentServiceInterface
         $this->gatewayRepository = $gatewayRepository;
     }
 
+    /**
+     * @throws Exception
+     */
     public function processPayment($userId, $amount, $currency = 'BRL')
     {
-        // Lógica de escolha de gateway e verificação
         $availableGateway = $this->gatewayRepository->getAvailableGateways()->first();
 
         if (!$availableGateway) {
-            throw new \Exception('Nenhum gateway disponível no momento.');
+            throw new Exception('No payment gateway is available.');
         }
 
-        // Criação da transação antes de processar o pagamento
         $transaction = $this->transactionRepository->create([
             'user_id' => $userId,
             'amount' => $amount,
@@ -38,7 +40,6 @@ class PaymentService implements PaymentServiceInterface
             'type' => 'outgoing',
         ]);
 
-        // Disparar a Job para processar o pagamento
         ProcessPaymentJob::dispatch($userId, $amount, $currency);
 
         return $transaction;
@@ -46,7 +47,6 @@ class PaymentService implements PaymentServiceInterface
 
     protected function selectGateway()
     {
-        // Checa no Redis o status dos gateways
         $gateways = $this->gatewayRepository->getAvailableGateways();
         foreach ($gateways as $gateway) {
             if (Redis::get('gateway:' . $gateway->id) === 'available') {
@@ -57,10 +57,8 @@ class PaymentService implements PaymentServiceInterface
         return null;
     }
 
-    protected function sendToGateway($gateway, $amount)
+    protected function sendToGateway($gateway, $amount): bool
     {
-        // Simulação de integração com gateway
-        // Substituir com a chamada real ao gateway (API de integração)
-        return true;  // Sucesso simulado
+        return true;
     }
 }

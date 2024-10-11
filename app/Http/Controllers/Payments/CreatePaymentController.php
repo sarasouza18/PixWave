@@ -19,9 +19,6 @@ class CreatePaymentController extends Controller
         $this->paymentService = $paymentService;
     }
 
-    /**
-     * Método mágico __invoke para lidar com a solicitação de pagamento
-     */
     public function __invoke(CreatePaymentRequest $request)
     {
         try {
@@ -36,27 +33,26 @@ class CreatePaymentController extends Controller
                 'transaction' => $transaction
             ], Response::HTTP_OK);
         } catch (GatewayUnavailableException $e) {
-            Log::error('Erro de gateway: ' . $e->getMessage(), ['user_id' => $request->user_id]);
+            Log::error('Gateway error: ' . $e->getMessage(), ['user_id' => $request->user_id]);
 
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
             ], $e->getCode());
         } catch (PaymentException $e) {
-            Log::error('Erro de pagamento: ' . $e->getMessage(), ['user_id' => $request->user_id]);
+            Log::error('Payment error: ' . $e->getMessage(), ['user_id' => $request->user_id]);
 
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
             ], $e->getCode());
         } catch (\Exception $e) {
-            Log::critical('Erro inesperado: ' . $e->getMessage(), ['user_id' => $request->user_id]);
+            Log::critical('Unexpected error: ' . $e->getMessage(), ['user_id' => $request->user_id]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Ocorreu um erro inesperado.'
+                'message' => 'An unexpected error occurred.'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
-

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BaseRepository implements BaseRepositoryInterface
 {
-    protected $model;
+    protected Model $model;
 
     public function __construct(Model $model)
     {
@@ -15,7 +15,7 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Retorna todos os registros
+     * Returns all records
      */
     public function getAll()
     {
@@ -23,7 +23,7 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Busca um registro por ID
+     * Finds a record by ID
      */
     public function findById($id)
     {
@@ -31,7 +31,7 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Cria um novo registro
+     * Creates a new record
      */
     public function create(array $data)
     {
@@ -39,7 +39,7 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Atualiza um registro existente
+     * Updates an existing record
      */
     public function update(Model $model, array $data)
     {
@@ -47,11 +47,10 @@ class BaseRepository implements BaseRepositoryInterface
     }
 
     /**
-     * Deleta um registro
+     * Deletes a record
      */
     public function delete(Model $model)
     {
         return $model->delete();
     }
 }
-

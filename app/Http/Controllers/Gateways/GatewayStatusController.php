@@ -18,13 +18,9 @@ class GatewayStatusController extends Controller
         $this->gatewayRepository = $gatewayRepository;
     }
 
-    /**
-     * Método mágico __invoke para verificar o status dos gateways
-     */
     public function __invoke()
     {
         try {
-            // Verificar gateways disponíveis
             $gateways = $this->gatewayRepository->getAvailableGateways();
 
             if ($gateways->isEmpty()) {
@@ -36,18 +32,18 @@ class GatewayStatusController extends Controller
                 'gateways' => $gateways
             ], Response::HTTP_OK);
         } catch (GatewayUnavailableException $e) {
-            Log::error('Nenhum gateway disponível', ['error' => $e->getMessage()]);
+            Log::error('No gateway available', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
             ], $e->getCode());
         } catch (Exception $e) {
-            Log::critical('Erro inesperado ao verificar gateways: ' . $e->getMessage());
+            Log::critical('Unexpected error while checking gateways: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erro inesperado ao verificar os gateways.'
+                'message' => 'Unexpected error while checking the gateways.'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

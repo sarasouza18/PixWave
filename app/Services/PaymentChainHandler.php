@@ -6,13 +6,16 @@ use Exception;
 
 class PaymentChainHandler
 {
-    protected $gateways = [];
+    protected array $gateways = [];
 
     public function __construct(array $gateways)
     {
         $this->gateways = $gateways;
     }
 
+    /**
+     * @throws Exception
+     */
     public function processPayment($userId, $amount, $currency): array
     {
         foreach ($this->gateways as $gateway) {
@@ -20,12 +23,11 @@ class PaymentChainHandler
                 try {
                     return $gateway->processPayment($userId, $amount, $currency);
                 } catch (Exception $e) {
-                    // Log o erro ou execute alguma ação caso o pagamento falhe
-                    continue;  // Tenta o próximo gateway
+                    continue;
                 }
             }
         }
 
-        throw new Exception('Nenhum gateway de pagamento está disponível.');
+        throw new Exception('No payment gateway is available.');
     }
 }

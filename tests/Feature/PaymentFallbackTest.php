@@ -13,35 +13,34 @@ class PaymentFallbackTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Testa o fallback de gateways de pagamento.
+     * Tests the payment gateway fallback.
      *
      * @return void
      */
     public function test_payment_fallback_to_second_gateway()
     {
-        // Cria um usuário fictício
+        // Create a test user
         $user = User::factory()->create();
 
-        // Cria dois gateways, um indisponível e outro disponível
-        $gateway1 = Gateway::factory()->create(['name' => 'Mercado Pago', 'avaliable' => false]);
+        // Create two gateways, one unavailable and the other available
+        $gateway1 = Gateway::factory()->create(['name' => 'Mercado Pago', 'available' => false]);
         $gateway2 = Gateway::factory()->create(['name' => 'Gerencianet', 'available' => true]);
 
-        // Simula uma requisição POST para criar um pagamento
+        // Simulate a POST request to create a payment
         $response = $this->actingAs($user)->postJson('/api/payments', [
             'amount' => 250.75,
             'currency' => 'BRL',
         ]);
 
-        // Verifica se a resposta tem o status HTTP 201 (criado)
+        // Check if the response has the HTTP status 201 (created)
         $response->assertStatus(201);
 
-        // Verifica se a transação foi criada no banco de dados com o segundo gateway
+        // Verify that the transaction was created in the database using the second gateway
         $this->assertDatabaseHas('transactions', [
             'user_id' => $user->id,
             'amount' => 250.75,
             'currency' => 'BRL',
-            'gateway_id' => $gateway2->id,  // Deve usar o segundo gateway
+            'gateway_id' => $gateway2->id,  // Should use the second gateway
         ]);
     }
 }
-

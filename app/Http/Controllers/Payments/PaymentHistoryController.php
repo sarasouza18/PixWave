@@ -17,10 +17,7 @@ class PaymentHistoryController extends Controller
     {
         $this->transactionRepository = $transactionRepository;
     }
-
-    /**
-     * Método mágico __invoke para exibir o histórico de transações
-     */
+    
     public function __invoke(Request $request, $userId)
     {
         try {
@@ -31,11 +28,11 @@ class PaymentHistoryController extends Controller
                 'transactions' => $transactions
             ], Response::HTTP_OK);
         } catch (Exception $e) {
-            Log::error('Erro ao buscar histórico de transações: ' . $e->getMessage(), ['user_id' => $userId]);
+            Log::error('Error fetching transaction history: ' . $e->getMessage(), ['user_id' => $userId]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao buscar histórico de transações.'
+                'message' => 'Error fetching transaction history.'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

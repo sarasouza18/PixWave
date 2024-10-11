@@ -11,7 +11,7 @@ use App\Models\Transaction;
 
 class GerenciaNetService implements PaymentGatewayInterface
 {
-    protected $options;
+    protected array $options;
 
     public function __construct()
     {
@@ -19,12 +19,12 @@ class GerenciaNetService implements PaymentGatewayInterface
             'client_id' => env('GERENCIANET_CLIENT_ID'),
             'client_secret' => env('GERENCIANET_CLIENT_SECRET'),
             'pix_cert' => env('GERENCIANET_CERTIFICATE_PATH'),
-            'sandbox' => env('GERENCIANET_SANDBOX'), // true para sandbox, false para produção
+            'sandbox' => env('GERENCIANET_SANDBOX'),
         ];
     }
 
     /**
-     * Processa o pagamento via Gerencianet
+     * Processes payment via Gerencianet
      *
      * @param int $userId
      * @param float $amount
@@ -32,29 +32,27 @@ class GerenciaNetService implements PaymentGatewayInterface
      * @return array
      * @throws Exception
      */
-    public function processPayment($userId, $amount, $currency = 'BRL'): array
+    public function processPayment(int $userId, float $amount, string $currency): array
     {
         try {
-            // Dados do pagamento PIX
             $body = [
-                'calendario' => ['expiracao' => 3600], // Expiração do PIX em 1 hora
+                'calendario' => ['expiracao' => 3600],
                 'devedor' => [
-                    'cpf' => '12345678909',  // Substituir com CPF real
-                    'nome' => 'Nome do Pagador',
+                    'cpf' => '12345678909',
+                    'nome' => 'Payer Name',
                 ],
                 'valor' => [
                     'original' => number_format($amount, 2, '.', ''),
                 ],
-                'chave' => env('GERENCIANET_PIX_KEY'), // Chave PIX para recebimento
-                'solicitacaoPagador' => 'Descrição do pagamento',
+                'chave' => env('GERENCIANET_PIX_KEY'),
+                'solicitacaoPagador' => 'Payment description',
             ];
 
             $api = new Gerencianet($this->options);
             $pix = $api->pixCreateImmediateCharge([], $body);
 
-            // Atualiza o status da transação no banco de dados com base no status do gateway
             $transaction = Transaction::where('user_id', $userId)->latest()->first();
-            $transaction->status = PaymentStatus::PENDING->value; // Gerencianet cria cobranças pendentes por padrão
+            $transaction->status = PaymentStatus::PENDING->value;
             $transaction->save();
 
             return [
@@ -68,20 +66,18 @@ class GerenciaNetService implements PaymentGatewayInterface
             $transaction->status = PaymentStatus::FAILED->value;
             $transaction->save();
 
-            throw new Exception('Erro no pagamento via Gerencianet: ' . $e->error_description);
+            throw new Exception('Payment error via Gerencianet: ' . $e->error_description);
         } catch (Exception $e) {
             $transaction = Transaction::where('user_id', $userId)->latest()->first();
             $transaction->status = PaymentStatus::FAILED->value;
             $transaction->save();
 
-            throw new Exception('Erro inesperado: ' . $e->getMessage());
+            throw new Exception('Unexpected error: ' . $e->getMessage());
         }
     }
 
     public function isAvailable(): bool
     {
-        return true; // Verificação simples de disponibilidade
+        return true;
     }
 }
-
-
