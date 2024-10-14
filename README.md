@@ -164,6 +164,18 @@ Visit `http://localhost` in your browser to interact with the PixWave system.
 
 ---
 
+## 🧪 Running Tests
+
+PixWave includes a comprehensive test suite. To run the tests, ensure that you are inside the Docker container or have a local environment set up. Run the following command:
+
+```bash
+docker exec -it laravel_app php artisan test
+```
+
+This will execute the unit and feature tests to ensure the functionality of the payment system, including job processing, gateway fallback, and transaction history management.
+
+---
+
 ## 🤖 Troubleshooting
 
 - **Port Conflicts**: If you encounter port conflicts (e.g., Redis or MySQL already running on your system), update the `docker-compose.yml` file to change the default port mappings.
