@@ -21,7 +21,7 @@ class MercadoPagoService implements PaymentGatewayInterface
         try {
             $payment = new Payment();
             $payment->transaction_amount = $amount;
-            $payment->description = "PIX Payment - User: $userId";
+            $payment->description = "PIX Payment - User: $userDocument";
             $payment->payment_method_id = "pix";
             $payment->payer = [
                 "email" => "useremail@example.com"
