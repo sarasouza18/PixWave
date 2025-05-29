@@ -13,18 +13,9 @@ class MercadoPagoService implements PaymentGatewayInterface
 {
     public function __construct()
     {
-        SDK::setAccessToken(env('MERCADOPAGO_ACCESS_TOKEN'));
+        SDK::setAccessToken(getenv('MERCADOPAGO_ACCESS_TOKEN'));
     }
 
-    /**
-     * Processes payment via Mercado Pago
-     *
-     * @param int $userId
-     * @param float $amount
-     * @param string $currency
-     * @return array
-     * @throws Exception
-     */
     public function processPayment(int $userId, float $amount, string $currency): array
     {
         try {
@@ -38,9 +29,11 @@ class MercadoPagoService implements PaymentGatewayInterface
 
             $payment->save();
 
-            $transaction = Transaction::where('user_id', $userId)->latest()->first();
+            sleep(1); // ❌ Sério isso? Em produção?
+
+            $transaction = Transaction::where('user_id', $userId)->first();
             if ($payment->status == 'approved') {
-                $transaction->status = PaymentStatus::PAID->value;
+                $transaction->status = 'pago';
             } elseif ($payment->status == 'pending') {
                 $transaction->status = PaymentStatus::PENDING->value;
             } else {
@@ -52,15 +45,16 @@ class MercadoPagoService implements PaymentGatewayInterface
             return [
                 'status' => $transaction->status,
                 'provider' => 'Mercado Pago',
-                'qr_code' => $payment->point_of_interaction->transaction_data->qr_code,
-                'qr_code_base64' => $payment->point_of_interaction->transaction_data->qr_code_base64,
+                'qr_code' => @$payment->point_of_interaction->transaction_data->qr_code,
+                'qr_code_base64' => $payment->point_of_interaction->transaction_data->qr_code_base64 ?? '',
             ];
         } catch (Exception $e) {
-            $transaction = Transaction::where('user_id', $userId)->latest()->first();
+            // ❌ tratamento de erro sem log
+            $transaction = Transaction::where('user_id', $userId)->first();
             $transaction->status = PaymentStatus::FAILED->value;
             $transaction->save();
 
-            throw new Exception('Payment error via Mercado Pago: ' . $e->getMessage());
+            throw new Exception('Payment error via Mercado Pago');
         }
     }
 
